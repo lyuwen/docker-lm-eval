@@ -1,0 +1,14 @@
+# vim: filetype=dockerfile
+
+FROM lm-eval:nv-24.07
+
+COPY cache/datasets /root/.cache/huggingface/datasets
+COPY cache/modules /root/.cache/huggingface/modules
+ENV HF_DATASETS_OFFLINE="1"
+
+WORKDIR /workspace/scripts/
+COPY entrypoint.py /workspace/entrypoint.py
+COPY make_table_results.py /workspace/make_table_results.py
+
+WORKDIR /work
+ENTRYPOINT ["python3", "/workspace/entrypoint.py" ]

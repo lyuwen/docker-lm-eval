@@ -1,0 +1,35 @@
+# vim: filetype=dockerfile
+
+# mkdir eval-apps
+# git clone --recurse-submodules https://github.com/Dao-AILab/causal-conv1d.git eval-apps/causal-conv1d
+# git clone --recurse-submodules https://github.com/state-spaces/mamba.git eval-apps/mamba
+# git clone --recurse-submodules https://github.com/EleutherAI/lm-evaluation-harness eval-apps/lm-evaluation-harness
+
+# FROM nvcr.io/nvidia/pytorch:24.03-py3
+FROM nvcr.nju.edu.cn/nvidia/pytorch:24.07-py3
+
+RUN sed -i -e 's/archive.ubuntu.com/mirrors.ustc.edu.cn/' -e 's/security.ubuntu.com/mirrors.ustc.edu.cn/' /etc/apt/sources.list
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      ca-certificates wget curl \
+      libaio-dev \
+      nvtop ifstat htop nethogs infiniband-diags  \
+      && \
+    apt-get autoremove --purge -y && \
+    apt-get autoclean -y && \
+    rm -rf /var/cache/apt/* /var/lib/apt/lists/*
+
+ENV PIP_INDEX_URL=https://mirrors.bfsu.edu.cn/pypi/web/simple
+
+COPY eval-apps /apps
+
+# Install python packages
+WORKDIR /apps/causal-conv1d
+RUN CAUSAL_CONV1D_FORCE_BUILD=TRUE pip install --verbose --no-build-isolation --no-cache-dir -e .
+WORKDIR /apps/mamba
+RUN MAMBA_FORCE_BUILD=TRUE pip install --verbose --no-build-isolation --no-cache-dir -e .
+WORKDIR /apps/lm-evaluation-harness
+RUN pip install --no-cache-dir .[api,dev,hf_transfer,ifeval,math,multilingual,optimum,sentencepiece,vllm,wandb,zeno]
+RUN pip install --verbose --no-build-isolation --no-cache-dir -U transformers
+RUN FLASH_ATTENTION_FORCE_BUILD=TRUE pip install  --verbose --no-build-isolation --no-cache-dir --force-reinstall --no-deps flash-attn==2.4.2
