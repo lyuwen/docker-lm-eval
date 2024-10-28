@@ -12,7 +12,7 @@ import argparse
 from pytablewriter import LatexTableWriter, MarkdownTableWriter
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(format='%(asctime)s | %(levelname)-8s | %(name)s:%(funcName)s:%(lineno)d - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -60,12 +60,12 @@ def make_table(result_dict):
 
 
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser()
     parser.add_argument("summary", type=argparse.FileType('r'), help="Summary json file.")
     parser.add_argument("--output", "-o", type=argparse.FileType('w'), default=sys.stdout, help="Output table file.")
     args = parser.parse_args()
     #
-    print(args.summary)
     with args.summary as f:
         result_dict = json.load(f)
     with args.output as f:
