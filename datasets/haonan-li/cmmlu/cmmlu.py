@@ -37,6 +37,7 @@ _HOMEPAGE = "https://github.com/haonan-li/CMMLU"
 
 _URL = r"https://huggingface.co/datasets/haonan-li/cmmlu/resolve/main/cmmlu_v1_0_1.zip"
 _URL = r"/workspace/datasets/haonan-li/cmmlu/cmmlu_v1_0_1.zip"
+_DATA_DIR = r"/workspace/datasets/haonan-li/cmmlu"
 
 task_list = [
      'agronomy',
@@ -140,7 +141,8 @@ class CMMLU(datasets.GeneratorBasedBuilder):
         )
 
     def _split_generators(self, dl_manager):
-        data_dir = dl_manager.download_and_extract(_URL)
+        # data_dir = dl_manager.download_and_extract(_URL)
+        data_dir = _DATA_DIR
         task_name = self.config.name
         return [
             datasets.SplitGenerator(
